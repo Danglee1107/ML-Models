@@ -161,7 +161,8 @@ class KDTree:
         
         return node
 
-    def search(self, new_point: npt.NDArray[np.float64]) -> tuple[Node | None, np.float64 | None]:
+    def search(self, new_point: npt.NDArray[np.float64],
+               ord: int = 2) -> tuple[Node | None, np.float64 | None]:
         """
         Find the nearest neighbor to a given point using KD-tree pruning.
 
@@ -213,7 +214,7 @@ class KDTree:
             axis = node.dim
 
             if not visited:
-                current_dist = np.linalg.norm(node.point - new_point)
+                current_dist = np.linalg.norm(node.point - new_point, ord= ord)
                 if best_dist is None or current_dist < best_dist:
                     best_dist = current_dist
                     nearest = node
