@@ -220,7 +220,7 @@ class BallTree:
                 Closest datapoint found.
 
             distance : float
-                Euclidean distance from query_point to nearest_point.
+                distance from query_point to nearest_point (Euclidean by default).
         """
 
         # Leaf node:
