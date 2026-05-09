@@ -179,7 +179,7 @@ class KDTree:
         Returns
         -------
         tuple[Node | None, np.float64 | None]
-            A tuple containing the nearest node and the Euclidean distance to it.
+            A tuple containing the nearest node and the distance (Euclidean by default) to it.
             Returns (None, None) if the tree is empty.
 
         Examples
