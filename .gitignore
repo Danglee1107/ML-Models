@@ -1,2 +1,3 @@
 venv/
 np_learning.py
+algorithms/__pycache__/
