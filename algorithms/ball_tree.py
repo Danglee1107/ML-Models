@@ -21,14 +21,14 @@ class BallTree:
         self.head = self.build_tree(data, ord= ord)
 
 # =================== VISUALIZE TREE ===================
-    def drawTree(self):
+    def drawTree(self) -> str:
         if self.head is None:
             return "Tree is empty"
 
         lines, _, _, _ = self._build_tree(self.head)
         return "\n".join(lines)
 
-    def _build_tree(self, node: Node):
+    def _build_tree(self, node: Node) -> tuple[list[str], int, int, int]:
         if node is None:
             return [], 0, 0, 0
 
@@ -199,9 +199,10 @@ class BallTree:
 
 
     def search(self,
-            query_point: npt.NDArray[np.float64],
-            current_branch: Node,
-            ord: int = 2):
+               query_point: npt.NDArray[np.float64],
+               current_branch: Node,
+               ord: int = 2
+               ) -> tuple[npt.NDArray[np.float64], float | np.floating[Any]]:
         """
         Search for the nearest neighbor inside the Ball Tree.
 

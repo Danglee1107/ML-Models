@@ -14,14 +14,14 @@ class KDTree:
     def __init__(self, datapoints: npt.NDArray[np.float64]) -> None:
         self.root = self.build_tree(datapoints)
 
-    def drawTree(self):
+    def drawTree(self) -> str:
         if self.root is None:
             return "Tree is empty"
 
         lines, _, _, _ = self._build_tree(self.root )
         return "\n".join(lines)
 
-    def _build_tree(self, node: Node):
+    def _build_tree(self, node: Node) -> tuple[list[str], int, int, int]:
         if node is None:
             return [], 0, 0, 0
 

@@ -36,7 +36,7 @@ def brute_force(points: npt.NDArray[np.float64],
                 query_point: npt.NDArray[np.float64], 
                 n_neighbors: int,
                 metric = "minkowski", 
-                p: int = 2):
+                p: int = 2) -> tuple[np.ndarray, np.ndarray]:
 
     if metric == "euclidean" or (metric == "minkowski" and p == 2):
         dists = euclidean_norm(points, query_point, axis= 1)
@@ -59,7 +59,7 @@ def kd_tree(points: npt.NDArray[np.float64],
             query_point: npt.NDArray[np.float64], 
             n_neighbors: int = 1,
             metric = "minkowski",
-            p: int = 2):
+            p: int = 2) -> tuple[np.ndarray, np.ndarray]:
 
     kd = KDTree(points)
     if metric == "minkowski":
@@ -82,7 +82,7 @@ def ball_tree(points: npt.NDArray[np.float64],
               query_point: npt.NDArray[np.float64], 
               n_neighbors: int = 1,
               metric = "minkowski",
-              p: int = 2):
+              p: int = 2) -> tuple[np.ndarray, np.ndarray]:
 
     if metric == "minkowski":
         bt = BallTree(points, ord = p)
@@ -102,12 +102,12 @@ def ball_tree(points: npt.NDArray[np.float64],
     return np.array(dist), np.array([nearest_label])
 
 def knn(data_points: npt.NDArray[np.float64],
-        query_point: npt.NDArray[np.float64],
-        n_neighbors: int = 1, 
-        weight: Literal["uniform", "distance"] = "uniform",
-        algorithm: Literal["kd-tree", "ball-tree", "brute"] = "brute",
-        metric: Literal["manhattan", "euclidean", "minkowski"] = "minkowski",
-        p: int  = 2):
+    query_point: npt.NDArray[np.float64],
+    n_neighbors: int = 1, 
+    weight: Literal["uniform", "distance"] = "uniform",
+    algorithm: Literal["kd-tree", "ball-tree", "brute"] = "brute",
+    metric: Literal["manhattan", "euclidean", "minkowski"] = "minkowski",
+    p: int  = 2) -> int:
 
     if algorithm == "kd-tree":
         nearest, nearest_labels = kd_tree(data_points, query_point,n_neighbors,  metric, p)
