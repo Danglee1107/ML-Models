@@ -164,7 +164,7 @@ class KDTree:
     def search(self, new_point: npt.NDArray[np.float64],
                ord: int = 2) -> tuple[Node | None, np.float64 | None]:
         """
-        Find the nearest neighbor to a given point using KD-tree pruning.
+        Find the nearest neighbor to a given point using KD-tree search.
 
         This method traverses the KD-tree to efficiently locate the closest point
         to the provided `new_point` by pruning branches that cannot contain a closer point.
@@ -188,7 +188,7 @@ class KDTree:
         >>> arr = np.array([[2, 1], [3, 3], [4, 4], [1, 6], [5, 2], [7, 5]])
         >>> kd = KDTree(arr)
         >>> new_point = np.array([3, 2])
-        >>> nearest, distance = kd.pruning(new_point)
+        >>> nearest, distance = kd.search(new_point)
         >>> print(nearest.point)
         [3 3]
         >>> print(distance)
