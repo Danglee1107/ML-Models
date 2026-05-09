@@ -16,8 +16,9 @@ class Node:
 
         
 class BallTree:
-    def __init__(self, data: npt.NDArray[np.float64]) -> None:
-        self.head = self.build_tree(data)
+    def __init__(self, data: npt.NDArray[np.float64], 
+                 ord: int = 2) -> None:
+        self.head = self.build_tree(data, ord= ord)
 
 # =================== VISUALIZE TREE ===================
     def drawTree(self):
@@ -122,7 +123,8 @@ class BallTree:
 
     def build_tree(self,
                 data: Optional[npt.NDArray[np.float64]], 
-                leafsize: int = 4) -> Optional[Node]:
+                leafsize: int = 4,
+                ord: int = 2) -> Optional[Node]:
         """
         Recursively build a Ball Tree.
 
@@ -152,7 +154,7 @@ class BallTree:
 
         # Radius = maximum distance from centroid to any point.
         # This guarantees all points are inside the ball.
-        radius = np.max(np.linalg.norm(data - centroid, axis=1))
+        radius = np.max(np.linalg.norm(data - centroid, axis=1, ord= ord))
 
         # Leaf condition:
         # Stop splitting when cluster becomes small enough.
@@ -164,16 +166,16 @@ class BallTree:
         rand_point = data[np.random.choice(data.shape[0], size=1)]
 
         # Find the point farthest from the random point.
-        f_point = data[np.argmax(np.linalg.norm(data - rand_point, axis=1))]
+        f_point = data[np.argmax(np.linalg.norm(data - rand_point, axis=1, ord= ord))]
 
         # Find the point farthest from f_point.
-        ff_point = data[np.argmax(np.linalg.norm(data - f_point, axis=1))]
+        ff_point = data[np.argmax(np.linalg.norm(data - f_point, axis=1, ord= ord))]
 
         # Distance from every point to first pivot.
-        d1 = np.linalg.norm(data - f_point, axis=1)
+        d1 = np.linalg.norm(data - f_point, axis=1, ord= ord)
 
         # Distance from every point to second pivot.
-        d2 = np.linalg.norm(data - ff_point, axis=1)
+        d2 = np.linalg.norm(data - ff_point, axis=1, ord= ord)
 
         # Points closer to f_point go to cluster 1.
         # Points closer to ff_point go to cluster 2.
@@ -198,7 +200,8 @@ class BallTree:
 
     def search(self,
             query_point: npt.NDArray[np.float64],
-            current_branch: Node):
+            current_branch: Node,
+            ord: int = 2):
         """
         Search for the nearest neighbor inside the Ball Tree.
 
@@ -240,8 +243,8 @@ class BallTree:
             ctr2 = right_node.ctr
 
             # Distance from query point to each child center.
-            d1 = np.linalg.norm(query_point - ctr1)
-            d2 = np.linalg.norm(query_point - ctr2)
+            d1 = np.linalg.norm(query_point - ctr1, ord= ord)
+            d2 = np.linalg.norm(query_point - ctr2, ord= ord)
 
             # Explore the closer child first.
             # This increases the chance of getting a good best_dist early.
@@ -259,7 +262,7 @@ class BallTree:
             # If this lower bound is already larger than best_dist,
             # then no point inside that ball can be closer.
             low_bound = (
-                np.linalg.norm(query_point - check_branch.ctr)
+                np.linalg.norm(query_point - check_branch.ctr, ord= ord)
                 - check_branch.radius
             )
 
@@ -284,11 +287,11 @@ class BallTree:
 
             # Find index of nearest point in leaf.
             near_point = points[
-                np.argmin(np.linalg.norm(points - query_point, axis=1))
+                np.argmin(np.linalg.norm(points - query_point, axis=1, ord= ord))
             ]
 
             # Actual nearest neighbor distance.
-            distance = np.linalg.norm(near_point - query_point)
+            distance = np.linalg.norm(near_point - query_point, ord= ord)
 
             return near_point, distance
 
