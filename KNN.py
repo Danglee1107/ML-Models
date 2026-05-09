@@ -7,6 +7,10 @@ from algorithms.kd_tree import KDTree
 from algorithms.ball_tree import BallTree
 from typing import Literal
 
+'''
+FOR K > 1 WILL BE UPDATED SOON
+'''
+
 np.random.seed(42)
 n = 210
 
@@ -20,7 +24,7 @@ X2 = np.random.randn(n//3, 2) * 0.3 + np.array([1.25, 1.5])
 X3 = np.random.randn(n//3, 2) * 0.3 + np.array([1.75, 0.5])
 X = np.vstack((X1, X2, X3))
 
-def display(query_point):
+def display(query_point) -> None:
     plt.plot(X1[:, 0], X1[: , 1], 'ro', alpha= .8)
     plt.plot(X2[:, 0], X2[: , 1], 'b^', alpha =.8)
     plt.plot(X3[:, 0], X3[: , 1], 'gs', alpha =.8)
@@ -38,6 +42,7 @@ def brute_force(points: npt.NDArray[np.float64],
                 metric = "minkowski", 
                 p: int = 2) -> tuple[np.ndarray, np.ndarray]:
 
+    # Compute distances based on the selected metric
     if metric == "euclidean" or (metric == "minkowski" and p == 2):
         dists = euclidean_norm(points, query_point, axis= 1)
 
@@ -47,9 +52,11 @@ def brute_force(points: npt.NDArray[np.float64],
     elif metric == "minkowski":
         dists = minkowski(points, query_point, axis= 1, ord= p)
 
+    # Combine distances with labels and sort by distance
     distances = np.column_stack((dists, labels))
     distances = distances[distances[:, 0].argsort()]
 
+    # Select the n_neighbors closest points
     nearest = distances[:n_neighbors, :]
     nearest_labels = nearest[:, -1]
 
@@ -61,6 +68,7 @@ def kd_tree(points: npt.NDArray[np.float64],
             metric = "minkowski",
             p: int = 2) -> tuple[np.ndarray, np.ndarray]:
 
+    # Build KDTree and search for the nearest neighbor
     kd = KDTree(points)
     if metric == "minkowski":
         node, dist = kd.search(query_point, ord= p)
@@ -72,6 +80,7 @@ def kd_tree(points: npt.NDArray[np.float64],
     else:
         node, dist = kd.search(query_point)
 
+    # Find the label of the nearest neighbor
     if node:
         point = node.point
     nearest_label = labels[np.where(np.all(points == point, axis=1))[0][0]]
@@ -84,6 +93,7 @@ def ball_tree(points: npt.NDArray[np.float64],
               metric = "minkowski",
               p: int = 2) -> tuple[np.ndarray, np.ndarray]:
 
+    # Build BallTree and search for the nearest neighbor
     if metric == "minkowski":
         bt = BallTree(points, ord = p)
         point, dist = bt.search(query_point, bt.head,  ord= p) #type: ignore
@@ -96,35 +106,39 @@ def ball_tree(points: npt.NDArray[np.float64],
     else:
         bt = BallTree(points)
         point, dist = bt.search(query_point, bt.head) #type: ignore
-        
+
+    # Find the label of the nearest neighbor
     nearest_label = labels[np.where(np.all(points == point, axis=1))[0][0]]
 
     return np.array(dist), np.array([nearest_label])
 
 def knn(data_points: npt.NDArray[np.float64],
-    query_point: npt.NDArray[np.float64],
-    n_neighbors: int = 1, 
-    weight: Literal["uniform", "distance"] = "uniform",
-    algorithm: Literal["kd-tree", "ball-tree", "brute"] = "brute",
-    metric: Literal["manhattan", "euclidean", "minkowski"] = "minkowski",
-    p: int  = 2) -> int:
+        query_point: npt.NDArray[np.float64],
+        n_neighbors: int = 1, 
+        weight: Literal["uniform", "distance"] = "uniform",
+        algorithm: Literal["kd-tree", "ball-tree", "brute"] = "brute",
+        metric: Literal["manhattan", "euclidean", "minkowski"] = "minkowski",
+        p: int  = 2) -> int | np.intp:
 
+    # Select the algorithm for neighbor search
     if algorithm == "kd-tree":
         nearest, nearest_labels = kd_tree(data_points, query_point,n_neighbors,  metric, p)
 
     elif algorithm == "ball-tree":
         nearest, nearest_labels = ball_tree(data_points, query_point,n_neighbors,  metric, p)
-
+    
     # Brute Force by default
     else:
         nearest, nearest_labels = brute_force(data_points,query_point, n_neighbors, metric, p)
-        
 
+    # Voting: uniform or distance-based
     if weight == "uniform":
+        # Uniform voting: majority class among neighbors
         counts = np.bincount(nearest_labels.astype(int))
         target = np.argmax(counts)
 
     elif weight == "distance":
+        # Distance voting: closer neighbors have higher weight
         if any(nearest[:, 0] == 0): # the newpoint === datapoint
             return int(nearest[nearest[:, 0] == 0][0,1])
 
