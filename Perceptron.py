@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import numpy.typing as npt
 
-np.random.seed(42)
+np.random.seed(45)
 n = 200
 
 class_0 = np.random.randn(100, 2) * 0.5 + np.array([-1.0, -1.0])
@@ -56,6 +56,9 @@ def main() -> None:
     w = np.random.randn(1, 3)
     bias = np.ones((n, 1))
     _X = np.append(X, bias, axis=1)
+    lr = 0.01
+
+    display_with_fx(X, w)
 
     while True:
         mix_idx = np.random.permutation(n)
@@ -63,7 +66,7 @@ def main() -> None:
             xi = _X[mix_idx[i], :]
             yi = y[mix_idx[i]]
             if sign(w, xi) != yi:
-                w += yi * xi
+                w += lr * (yi * xi)
 
         if is_converged(sign(w, _X).T, y):
             break
