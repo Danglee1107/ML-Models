@@ -29,7 +29,7 @@ def display_with_fx(data: npt.NDArray[np.float64], w: npt.NDArray[np.float64]) -
         w = w.flatten()
     if w[1] != 0:
         x_vals = np.linspace(-3, 3, 100)
-        y_vals = -(w[0] / w[1]) * x_vals  # bias is zero
+        y_vals = -(w[0] * x_vals + w[2]) / w[1] 
         plt.plot(x_vals, y_vals, 'g-', label='fx (decision boundary)')
     else:
         # Vertical line
@@ -45,14 +45,29 @@ def display_with_fx(data: npt.NDArray[np.float64], w: npt.NDArray[np.float64]) -
     plt.title('Data and fx (decision boundary)')
     plt.show()
 
+def sign(w, x):
+    return np.sign(np.dot(x, w.T))
+
+def is_converged(y_hat: npt.NDArray[np.float64], 
+                 y: npt.NDArray[np.float64]):
+    return np.array_equal(y_hat.flatten().astype(int), y.flatten().astype(int))
 
 def main() -> None:
     w = np.random.randn(1, 3)
-    # print(w)
-    bias = np.zeros((n, 1))
+    bias = np.ones((n, 1))
     _X = np.append(X, bias, axis=1)
-    fx = _X @ w.T
-    # print(fx)
+
+    while True:
+        mix_idx = np.random.permutation(n)
+        for i in range(n):
+            xi = _X[mix_idx[i], :]
+            yi = y[mix_idx[i]]
+            if sign(w, xi) != yi:
+                w += yi * xi
+
+        if is_converged(sign(w, _X).T, y):
+            break
+    
     display_with_fx(X, w)
 
 if __name__ == '__main__':
